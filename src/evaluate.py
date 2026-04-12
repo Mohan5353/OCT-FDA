@@ -4,6 +4,7 @@ from torch.utils.data import DataLoader
 import segmentation_models_pytorch as smp
 from tqdm import tqdm
 import argparse
+import numpy as np
 from torchmetrics.classification import MulticlassF1Score, MulticlassJaccardIndex
 
 from dataset import RETOUCHDataset, get_val_transforms
@@ -14,6 +15,10 @@ def evaluate_model(model, loader, device, hyp_criterion=None, embedding_dim=16, 
     dice_metric = MulticlassF1Score(num_classes=num_classes).to(device)
     iou_metric = MulticlassJaccardIndex(num_classes=num_classes).to(device)
     dice_per_class = MulticlassF1Score(num_classes=num_classes, average=None).to(device)
+    
+    # Radiomics Quantifications
+    gt_volumes = {i: [] for i in range(1, num_classes)}
+    pred_volumes = {i: [] for i in range(1, num_classes)}
     
     with torch.no_grad():
         for batch in tqdm(loader, desc="Evaluating"):
@@ -38,10 +43,21 @@ def evaluate_model(model, loader, device, hyp_criterion=None, embedding_dim=16, 
             iou_metric.update(preds, masks)
             dice_per_class.update(preds, masks)
             
+            for b in range(imgs.size(0)):
+                for c in range(1, num_classes):
+                    gt_volumes[c].append((masks[b] == c).sum().item())
+                    pred_volumes[c].append((preds[b] == c).sum().item())
+            
+    volume_mae = {}
+    for c in range(1, num_classes):
+        mae = np.mean(np.abs(np.array(gt_volumes[c]) - np.array(pred_volumes[c])))
+        volume_mae[c] = mae
+        
     return {
         'dice': dice_metric.compute().item(),
         'iou': iou_metric.compute().item(),
-        'dice_per_class': dice_per_class.compute().cpu().numpy()
+        'dice_per_class': dice_per_class.compute().cpu().numpy(),
+        'volume_mae': volume_mae
     }
 
 def main(args):
@@ -83,8 +99,15 @@ def main(args):
     print(f"Overall Dice: {results['dice']:.4f}")
     print(f"Overall IoU:  {results['iou']:.4f}")
     fluid_names = ["Background", "IRF", "SRF", "PED"]
+    print("\nDice per class:")
     for i, dice in enumerate(results['dice_per_class']):
         print(f"  {fluid_names[i]:10}: {dice:.4f}")
+        
+    if 'volume_mae' in results:
+        print("\nRadiomics Quantification (Volume MAE in pixels):")
+        for c in range(1, 4):
+            print(f"  {fluid_names[c]:10}: {results['volume_mae'][c]:.2f}")
+            
     print("="*30)
 
 if __name__ == "__main__":

@@ -16,10 +16,20 @@ This report documents the performance of various Domain Adaptation (DA) techniqu
 | :--- | :------------------------------ | :---------: | :--------: | :-------------------------------------------------- |
 | 🏆 **1** | **DDSP (Feature Disruption)** | **0.7569**  | **0.6435** | **Current Champion.** Best SRF (0.84) & PED (0.66). |
 | 🥈 2 | DANN (Domain Adversarial)       | 0.7527      | 0.6342     | Very strong feature-level alignment.                |
-| 🥉 3 | **FDA Fine-tuned**              | 0.6970      | 0.5695     | Strongest pixel-level style adaptation.             |
-| 📊 4 | Baseline (Zero-Shot)            | 0.6685      | 0.5387     | High anatomical accuracy, but scanner biased.       |
-| 🔗 5 | CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering; noisy on target.     |
-| 📉 6 | FMC (Fourier Mixup Consistency) | 0.2871      | 0.2672     | High variance; unstable consistency regularization. |
+| 🚀 3 | **Feature-Space FDA**           | 0.7272      | 0.6092     | Highly novel. FDA on deep embedding features.       |
+| 🥉 4 | **FDA Fine-tuned**              | 0.6970      | 0.5695     | Strongest pixel-level style adaptation.             |
+| 📊 5 | Baseline (Zero-Shot)            | 0.6685      | 0.5387     | High anatomical accuracy, but scanner biased.       |
+| 🔗 6 | CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering; noisy on target.     |
+| 📉 7 | FMC (Fourier Mixup Consistency) | 0.2871      | 0.2672     | High variance; unstable consistency regularization. |
+| 🛡️ 8 | SFDA (Source-Free Adaptation)   | 0.2488      | 0.2477     | Target-only entropy minimization collapsed to BG.   |
+
+---
+
+## 1.5 Radiomics Quantification (Volume MAE)
+To prove clinical utility, models are now evaluated on their ability to accurately quantify fluid volume (pixel count MAE).
+*   **Feature-Space FDA:** IRF (864.85), SRF (378.85), PED (446.41)
+*   **SFDA:** IRF (1478.28), SRF (1467.12), PED (820.02)
+
 | 🧠 5 | Hyperbolic DA                   | 0.5702      | 0.4533     | **Best PED Class Performance (0.5061).**           |
 | 🔄 6 | UDA (Pseudo-labeling)           | 0.5631      | 0.4484     | Limited by label noise in small structures.         |
 | 📉 7 | ADVENT (Entropy Min)            | 0.4965      | 0.3998     | Unstable training on sparse fluid data.             |
