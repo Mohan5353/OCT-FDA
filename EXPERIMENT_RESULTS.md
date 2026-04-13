@@ -19,16 +19,47 @@ This report documents the performance of various Domain Adaptation (DA) techniqu
 | 🚀 3 | **Feature-Space FDA**           | 0.7272      | 0.6092     | Highly novel. FDA on deep embedding features.       |
 | 🥉 4 | **FDA Fine-tuned**              | 0.6970      | 0.5695     | Strongest pixel-level style adaptation.             |
 | 📊 5 | Baseline (Zero-Shot)            | 0.6685      | 0.5387     | High anatomical accuracy, but scanner biased.       |
-| 🔗 6 | CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering; noisy on target.     |
-| 📉 7 | FMC (Fourier Mixup Consistency) | 0.2871      | 0.2672     | High variance; unstable consistency regularization. |
-| 🛡️ 8 | SFDA (Source-Free Adaptation)   | 0.2488      | 0.2477     | Target-only entropy minimization collapsed to BG.   |
+| ⚡ 6 | Energy-Regularized UDA          | 0.5276      | 0.4190     | Smoother OOD scoring than softmax, but still noisy. |
+| 🔗 7 | CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering; noisy on target.     |
+| 📉 8 | FMC (Fourier Mixup Consistency) | 0.2871      | 0.2672     | High variance; unstable consistency regularization. |
+| 🛡️ 9 | SFDA (Source-Free Adaptation)   | 0.2488      | 0.2477     | Target-only entropy minimization collapsed to BG.   |
+| ⏱️ 10| TENT (Test-Time Adaptation)     | 0.2495      | 0.2480     | Batch-wise BN optimization collapsed.               |
 
 ---
 
-## 1.5 Radiomics Quantification (Volume MAE)
-To prove clinical utility, models are now evaluated on their ability to accurately quantify fluid volume (pixel count MAE).
+## 1.5 Advanced Clinical Evaluation Metrics
+To prove clinical utility and deployment safety, models are evaluated beyond Dice/IoU.
+
+### 1.5.1 Expected Calibration Error (ECE)
+Evaluates if the model's confidence matches its actual accuracy. Lower is better (safer).
+*   **DDSP:** IRF (0.0028), SRF (0.0009), PED (0.0011)
+*   **Baseline:** IRF (0.0026), SRF (0.0011), PED (0.0013)
+*   *Insight:* DDSP slightly improves calibration on SRF and PED compared to the baseline.
+
+### 1.5.2 Boundary/Surface Distances (HD95 & ASSD)
+Evaluates the anatomical realism and smoothness of the predicted boundaries. Lower is better.
+*   **DDSP:** 
+    *   IRF: HD95 = 88.92 px, ASSD = 28.97 px
+    *   SRF: HD95 = 34.62 px, ASSD = 13.64 px
+    *   PED: HD95 = 51.77 px, ASSD = 16.26 px
+*   **Baseline:** 
+    *   IRF: HD95 = 88.39 px, ASSD = 25.70 px
+    *   SRF: HD95 = 52.49 px, ASSD = 19.58 px
+    *   PED: HD95 = 66.74 px, ASSD = 22.08 px
+*   *Insight:* DDSP drastically improves boundary smoothness for SRF and PED over the baseline.
+
+### 1.5.3 Lesion-Wise Detection Rate (F1)
+Evaluates if the model detects individual distinct fluid pockets, regardless of their pixel volume.
+*   **DDSP:** IRF (0.7242), SRF (0.8397), PED (0.8923)
+*   **Baseline:** IRF (0.6723), SRF (0.8730), PED (0.8551)
+*   *Insight:* DDSP improves lesion detection for IRF and PED, making it clinically safer for early diagnosis.
+
+### 1.5.4 Radiomics Quantification (Volume MAE)
+Evaluates the ability to accurately quantify fluid volume (pixel count MAE). Lower is better.
+*   **DDSP:** IRF (905.88), SRF (318.37), PED (354.55)
+*   **Baseline:** IRF (989.29), SRF (389.58), PED (493.12)
 *   **Feature-Space FDA:** IRF (864.85), SRF (378.85), PED (446.41)
-*   **SFDA:** IRF (1478.28), SRF (1467.12), PED (820.02)
+*   *Insight:* DDSP provides the most accurate volume quantification, particularly for SRF and PED.
 
 | 🧠 5 | Hyperbolic DA                   | 0.5702      | 0.4533     | **Best PED Class Performance (0.5061).**           |
 | 🔄 6 | UDA (Pseudo-labeling)           | 0.5631      | 0.4484     | Limited by label noise in small structures.         |
