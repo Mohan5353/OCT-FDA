@@ -19,7 +19,8 @@ This report documents the performance of various Domain Adaptation (DA) techniqu
 | 🚀 3 | **Feature-Space FDA**           | 0.7272      | 0.6092     | Highly novel. FDA on deep embedding features.       |
 | 🥉 4 | **FDA Fine-tuned**              | 0.6970      | 0.5695     | Strongest pixel-level style adaptation.             |
 | 📊 5 | Baseline (Zero-Shot)            | 0.6685      | 0.5387     | High anatomical accuracy, but scanner biased.       |
-| ⚡ 6 | Energy-Regularized UDA          | 0.5276      | 0.4190     | Smoother OOD scoring than softmax, but still noisy. |
+| 🧠 6 | **Adv. Feature-Space FDA**     | 0.4927      | 0.3845     | MI + Physics + Topology. Needs weight tuning.      |
+| ⚡ 7 | Energy-Regularized UDA          | 0.5276      | 0.4190     | Smoother OOD scoring than softmax, but still noisy. |
 | 🔗 7 | CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering; noisy on target.     |
 | 📉 8 | FMC (Fourier Mixup Consistency) | 0.2871      | 0.2672     | High variance; unstable consistency regularization. |
 | 🛡️ 9 | SFDA (Source-Free Adaptation)   | 0.2488      | 0.2477     | Target-only entropy minimization collapsed to BG.   |
@@ -117,6 +118,15 @@ Evaluates the ability to accurately quantify fluid volume (pixel count MAE). Low
 ### 2.11. FMC (Fourier Mixup Consistency)
 - **Method:** Blends Source and Target styles at random ratios in Fourier space and enforces prediction consistency via KL-divergence.
 - **Insight:** Introduced high variance and training instability. Proved that for OCT, aligning feature distributions (DDSP) is superior to enforcing consistency on style augmentations.
+
+### 2.12. Advanced Feature-Space FDA (Regularized)
+- **Method:** Extends Feature FDA with three high-impact regularizations:
+    1.  **Phase-Amplitude MI Minimization**: Disentangles anatomy (Phase) from scanner noise (Amplitude) via a MINE estimator.
+    2.  **Physics-Informed Attenuation**: Enforces the Beer-Lambert law on feature vertical profiles to maintain optical realism.
+    3.  **Topological Persistence Proxy**: Penalizes lesion fragmentation to preserve clinical connectivity of fluid pockets.
+- **Goal:** Achieve state-of-the-art robustness and clinical reliability in cross-vendor segmentation.
+- **Result:** 0.4927 Dice.
+- **Insight:** While structurally sound, the current implementation suffered from **MI dominance**. The Mutual Information estimator gradients were orders of magnitude larger than the segmentation gradients, leading to sub-optimal segmentation performance. Significant improvements are expected by normalizing the MI loss or reducing its weight ($\lambda_{mi}$) to $10^{-7}$.
 
 ---
 
