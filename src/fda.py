@@ -87,3 +87,34 @@ def Feature_FDA(src_feat, trg_feat, L=0.05):
     out = fft.ifft2(fft_src_mutated, dim=(-2, -1))
     
     return torch.real(out)
+
+def Advanced_Feature_FDA(src_feat, trg_feat, L=0.05):
+    """
+    Same as Feature_FDA but returns amp and pha of the mutated features 
+    to facilitate Mutual Information minimization.
+    """
+    fft_src = fft.fft2(src_feat, dim=(-2, -1))
+    fft_trg = fft.fft2(trg_feat, dim=(-2, -1))
+    
+    amp_src, pha_src = torch.abs(fft_src), torch.angle(fft_src)
+    amp_trg = torch.abs(fft_trg)
+    
+    amp_src_shift = fft.fftshift(amp_src, dim=(-2, -1))
+    amp_trg_shift = fft.fftshift(amp_trg, dim=(-2, -1))
+    
+    B, C, H, W = amp_src.shape
+    b = int(np.floor(min(H, W) * L))
+    
+    if b > 0:
+        cy, cx = H // 2, W // 2
+        # Style (Amplitude) from target
+        amp_src_shift[:, :, cy-b:cy+b, cx-b:cx+b] = amp_trg_shift[:, :, cy-b:cy+b, cx-b:cx+b]
+    
+    amp_src_mutated_shift = amp_src_shift
+    amp_src_mutated = fft.ifftshift(amp_src_mutated_shift, dim=(-2, -1))
+    
+    fft_src_mutated = amp_src_mutated * torch.exp(1j * pha_src)
+    out = fft.ifft2(fft_src_mutated, dim=(-2, -1))
+    
+    # Return mutated features, and the components for MI regularization
+    return torch.real(out), amp_src_mutated, pha_src
