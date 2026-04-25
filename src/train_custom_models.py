@@ -58,13 +58,14 @@ def main(args):
     model = CustomMultiScaleFDAModel(base_model, fda_L=args.fda_L).to(device)
 
     # Datasets
-    src_ds = RETOUCHDataset(args.data_root, vendor="Cirrus", transforms=get_train_transforms(), load_mask=True, split='all')
+    img_size = (args.img_size, args.img_size)
+    src_ds = RETOUCHDataset(args.data_root, vendor="Cirrus", transforms=get_train_transforms(img_size=img_size), load_mask=True, split='all')
     src_loader = DataLoader(src_ds, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
 
-    trg_ds = RETOUCHDataset(args.data_root, vendor="Spectralis", transforms=get_train_transforms(), load_mask=False, split='all')
+    trg_ds = RETOUCHDataset(args.data_root, vendor="Spectralis", transforms=get_train_transforms(img_size=img_size), load_mask=False, split='all')
     trg_loader = DataLoader(trg_ds, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
 
-    val_ds = RETOUCHDataset(args.data_root, vendor="Spectralis", transforms=get_val_transforms(), load_mask=True, split='all')
+    val_ds = RETOUCHDataset(args.data_root, vendor="Spectralis", transforms=get_val_transforms(img_size=img_size), load_mask=True, split='all')
     val_loader = DataLoader(val_ds, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
 
     # Optimizer & Loss
@@ -127,5 +128,6 @@ if __name__ == "__main__":
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--fda_L", type=float, default=0.01)
     parser.add_argument("--num_workers", type=int, default=4)
+    parser.add_argument("--img_size", type=int, default=640)
     args = parser.parse_args()
     main(args)
