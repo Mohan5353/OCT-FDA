@@ -53,7 +53,7 @@ class MISSFormer(nn.Module):
         self.dec3 = nn.Conv2d(256, 128, kernel_size=3, padding=1)
         
         self.u2 = nn.ConvTranspose2d(128, 64, kernel_size=2, stride=2)
-        self.dec2 = nn.Conv2d(128, 64, kernel_size=3, padding=1)
+        self.dec2 = nn.Conv2d(192, 64, kernel_size=3, padding=1)
         
         self.u1 = nn.ConvTranspose2d(64, 32, kernel_size=2, stride=2)
         self.dec1 = nn.Conv2d(32, 32, kernel_size=3, padding=1)
