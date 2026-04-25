@@ -8,54 +8,79 @@ from tqdm import tqdm
 import argparse
 
 from dataset import RETOUCHDataset, get_train_transforms, get_val_transforms
-from fda import Feature_FDA
+from fda import Feature_FDA, Advanced_Feature_FDA
+from advanced_losses import MIEstimator, mi_loss, PhysicsAttenuationLoss, TopologicalLoss
 from models.anamnet import AnamNet
 from models.segresnet import SegResNet
 from models.missformer import MISSFormer
 
-class CustomMultiScaleFDAModel(nn.Module):
-    def __init__(self, base_model, fda_L=0.01):
+class CustomFlexibleFDAModel(nn.Module):
+    def __init__(self, base_model, mode='baseline', fda_L=0.01):
         super().__init__()
         self.base_model = base_model
+        self.mode = mode
         self.fda_L = fda_L
 
     def forward(self, x_src, x_trg=None):
         feats_src = list(self.base_model.get_encoder_features(x_src))
-        
-        if x_trg is not None:
+        amp, pha, mutated_feat = None, None, None
+
+        if x_trg is not None and self.mode != 'baseline':
             with torch.no_grad():
                 feats_trg = self.base_model.get_encoder_features(x_trg)
             
-            # Apply FDA at every level of the encoder
-            for i in range(len(feats_src)):
-                f_src = feats_src[i]
-                f_trg = feats_trg[i]
-                
+            if self.mode == 'fda':
+                # Bottleneck only
+                idx = -1
+                f_src, f_trg = feats_src[idx], feats_trg[idx]
                 if f_src.shape[0] > f_trg.shape[0]:
                     f_trg = f_trg.repeat(f_src.shape[0] // f_trg.shape[0] + 1, 1, 1, 1)[:f_src.shape[0]]
-                else:
-                    f_trg = f_trg[:f_src.shape[0]]
-                
-                L_i = self.fda_L if i > (len(feats_src)//2) else self.fda_L * 0.5
-                feats_src[i] = Feature_FDA(f_src, f_trg, L=L_i)
+                else: f_trg = f_trg[:f_src.shape[0]]
+                feats_src[idx] = Feature_FDA(f_src, f_trg, L=self.fda_L)
+
+            elif self.mode == 'ms-fda':
+                for i in range(len(feats_src)):
+                    f_src, f_trg = feats_src[i], feats_trg[i]
+                    if f_src.shape[0] > f_trg.shape[0]:
+                        f_trg = f_trg.repeat(f_src.shape[0] // f_trg.shape[0] + 1, 1, 1, 1)[:f_src.shape[0]]
+                    else: f_trg = f_trg[:f_src.shape[0]]
+                    L_i = self.fda_L if i > (len(feats_src)//2) else self.fda_L * 0.5
+                    feats_src[i] = Feature_FDA(f_src, f_trg, L=L_i)
+
+            elif self.mode == 'adv-fda':
+                idx = -1
+                f_src, f_trg = feats_src[idx], feats_trg[idx]
+                if f_src.shape[0] > f_trg.shape[0]:
+                    f_trg = f_trg.repeat(f_src.shape[0] // f_trg.shape[0] + 1, 1, 1, 1)[:f_src.shape[0]]
+                else: f_trg = f_trg[:f_src.shape[0]]
+                mutated_feat, amp, pha = Advanced_Feature_FDA(f_src, f_trg, L=self.fda_L)
+                feats_src[idx] = mutated_feat
             
-        return self.base_model.forward_from_features(feats_src)
+        preds = self.base_model.forward_from_features(feats_src)
+        if self.mode == 'adv-fda' and x_trg is not None:
+            return preds, amp, pha, mutated_feat
+        return preds
 
 def main(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Training {args.model_name} with Multi-Scale FDA on {device}")
+    print(f"Training {args.model_name} | Mode: {args.mode} | Image Size: {args.img_size}")
 
-    # Model Selection
-    if args.model_name == "anamnet":
-        base_model = AnamNet()
-    elif args.model_name == "segresnet":
-        base_model = SegResNet()
-    elif args.model_name == "missformer":
-        base_model = MISSFormer()
-    else:
-        raise ValueError("Unknown model name")
+    if args.model_name == "anamnet": base_model = AnamNet()
+    elif args.model_name == "segresnet": base_model = SegResNet()
+    elif args.model_name == "missformer": base_model = MISSFormer()
+    else: raise ValueError("Unknown model name")
 
-    model = CustomMultiScaleFDAModel(base_model, fda_L=args.fda_L).to(device)
+    model = CustomFlexibleFDAModel(base_model, mode=args.mode, fda_L=args.fda_L).to(device)
+
+    # MI Estimator and Specialized Losses for Adv-FDA
+    mi_estimator, mi_optimizer = None, None
+    if args.mode == 'adv-fda':
+        # Detect bottleneck channels dynamically
+        dummy = torch.randn(1, 3, args.img_size, args.img_size).to(device)
+        with torch.no_grad():
+            bn_channels = base_model.get_encoder_features(dummy)[-1].shape[1]
+        mi_estimator = MIEstimator(channels=bn_channels, feature_size=None).to(device)
+        mi_optimizer = optim.Adam(mi_estimator.parameters(), lr=args.lr)
 
     # Datasets
     img_size = (args.img_size, args.img_size)
@@ -68,11 +93,13 @@ def main(args):
     val_ds = RETOUCHDataset(args.data_root, vendor="Spectralis", transforms=get_val_transforms(img_size=img_size), load_mask=True, split='all')
     val_loader = DataLoader(val_ds, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
 
-    # Optimizer & Loss
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     class_weights = torch.tensor([1.0, 50.0, 50.0, 100.0]).to(device)
     seg_criterion = nn.CrossEntropyLoss(weight=class_weights)
-    dice_loss = smp.losses.DiceLoss(mode='multiclass')
+    dice_loss_fn = smp.losses.DiceLoss(mode='multiclass')
+    
+    phys_loss_fn = PhysicsAttenuationLoss().to(device) if args.mode == 'adv-fda' else None
+    topo_loss_fn = TopologicalLoss().to(device) if args.mode == 'adv-fda' else None
 
     best_val_dice = 0.0
     from torchmetrics.classification import MulticlassF1Score
@@ -80,23 +107,35 @@ def main(args):
 
     for epoch in range(args.epochs):
         model.train()
+        if mi_estimator: mi_estimator.train()
         trg_iter = iter(trg_loader)
-        pbar = tqdm(src_loader, desc=f"{args.model_name}-Epoch {epoch+1}")
+        pbar = tqdm(src_loader, desc=f"{args.model_name}-{args.mode}-E{epoch+1}")
         
         for batch in pbar:
             src_imgs = batch['image'].to(device)
             src_masks = batch['mask'].to(device).long()
-            try:
-                trg_imgs = next(trg_iter)['image'].to(device)
-            except:
+            try: trg_imgs = next(trg_iter)['image'].to(device)
+            except: 
                 trg_iter = iter(trg_loader)
                 trg_imgs = next(trg_iter)['image'].to(device)
 
             optimizer.zero_grad()
-            outputs = model(src_imgs, trg_imgs)
-            loss = seg_criterion(outputs, src_masks) + dice_loss(outputs, src_masks)
+            if mi_optimizer: mi_optimizer.zero_grad()
+            
+            if args.mode == 'adv-fda':
+                outputs, amp, pha, mutated_feat = model(src_imgs, trg_imgs)
+                l_seg = seg_criterion(outputs, src_masks) + dice_loss_fn(outputs, src_masks)
+                l_mi = mi_loss(mi_estimator, amp, pha)
+                l_phys = phys_loss_fn(mutated_feat)
+                l_topo = topo_loss_fn(outputs, src_masks)
+                loss = l_seg + args.w_mi * l_mi + args.w_phys * l_phys + args.w_topo * l_topo
+            else:
+                outputs = model(src_imgs, trg_imgs)
+                loss = seg_criterion(outputs, src_masks) + dice_loss_fn(outputs, src_masks)
+            
             loss.backward()
             optimizer.step()
+            if mi_optimizer: mi_optimizer.step()
             pbar.set_postfix({'loss': f"{loss.item():.3f}"})
 
         # Validation
@@ -116,18 +155,22 @@ def main(args):
         if avg_val_dice > best_val_dice:
             best_val_dice = avg_val_dice
             os.makedirs("checkpoints", exist_ok=True)
-            torch.save(model.base_model.state_dict(), f"checkpoints/best_model_{args.model_name}_fda.pth")
-            print(f"Saved Best {args.model_name}")
+            torch.save(model.base_model.state_dict(), f"checkpoints/best_{args.model_name}_{args.mode}.pth")
+            print(f"Saved Best {args.model_name} {args.mode}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_name", type=str, required=True, choices=["anamnet", "segresnet", "missformer"])
+    parser.add_argument("--mode", type=str, default="baseline", choices=["baseline", "fda", "ms-fda", "adv-fda"])
     parser.add_argument("--data_root", type=str, default="data")
     parser.add_argument("--batch_size", type=int, default=4)
-    parser.add_argument("--epochs", type=int, default=20)
+    parser.add_argument("--epochs", type=int, default=15)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--fda_L", type=float, default=0.01)
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--img_size", type=int, default=640)
+    parser.add_argument("--w_mi", type=float, default=1e-6)
+    parser.add_argument("--w_phys", type=float, default=0.01)
+    parser.add_argument("--w_topo", type=float, default=0.1)
     args = parser.parse_args()
     main(args)

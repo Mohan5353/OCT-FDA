@@ -10,30 +10,39 @@ This report documents the performance of various Domain Adaptation (DA) techniqu
 
 ---
 
-## 1. Summary of Results (Target: Spectralis)
+## 1. Summary of Results (Target: Spectralis) - Methods Comparison
+This table compares general Domain Adaptation methods using the default backbone (**ResNet-101 / U-Net**) unless otherwise specified.
 
 | Rank | Method                          | Target Dice | Target IoU | Key Strength / Observation                          |
 | :--- | :------------------------------ | :---------: | :--------: | :-------------------------------------------------- |
 | 🏆 **1** | **DDSP (Feature Disruption)** | **0.7569**  | **0.6435** | **Current Champion.** Best SRF (0.84) & PED (0.66). |
 | 🥈 2 | DANN (Domain Adversarial)       | 0.7527      | 0.6342     | Very strong feature-level alignment.                |
-| 🚀 **3** | **Multi-Scale Feature FDA**    | **0.7383**  | **0.6212** | **Multi-Level Alignment.** Aligns textures/anatomy. |
-| 🚀 4 | **Adv. Feature-Space FDA**     | **0.7301**  | **0.6128** | **Disentangled & Physics-Informed.** Robust.      |
-| 🚀 5 | **Feature-Space FDA**           | 0.7272      | 0.6092     | Highly novel. FDA on deep embedding features.       |
-| 🥉 6 | **FDA Fine-tuned**              | 0.6970      | 0.5695     | Strongest pixel-level style adaptation.             |
-| 📊 7 | Baseline (Zero-Shot)            | 0.6685      | 0.5387     | High anatomical accuracy, but scanner biased.       |
-| 🔗 8 | CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering; noisy on target.     |
-| ⚡ 9 | Energy-Regularized UDA          | 0.5276      | 0.4190     | Smoother OOD scoring than softmax, but still noisy. |
-| 🧬 10| **AnamNet + MS-FDA**            | **0.5198**  | **0.4055** | **Lightweight AD-Blocks.** Efficient for edge.      |
-| 🏥 11| **SegResNet + MS-FDA**          | **0.3834**  | **0.2980** | **Residual Deep Supervision.** Needs pretraining.  |
-| 📉 12| FMC (Fourier Mixup Consistency) | 0.2871      | 0.2672     | High variance; unstable consistency regularization. |
-| 🤖 13| **MISSFormer + MS-FDA**         | **0.2560**  | **0.2110** | **Transformer-based.** OOM limited to 128x128.      |
-| 🛡️ 14| SFDA (Source-Free Adaptation)   | 0.2488      | 0.2477     | Target-only entropy minimization collapsed to BG.   |
-| ⏱️ 15| TENT (Test-Time Adaptation)     | 0.2495      | 0.2480     | Batch-wise BN optimization collapsed.               |
-| ❌ 16| Hyperbolic + KL                 | 0.2488      | 0.2477     | Failed. Collapsed to background class.              |
+| 🚀 3 | **Multi-Scale Feature FDA**    | 0.7383      | 0.6212     | **Top Spectral.** Aligns multi-level textures.      |
+| 🚀 4 | **Adv. Feature-Space FDA**     | 0.7301      | 0.6128     | **Physics-Informed.** Robust & Disentangled.       |
+| 🚀 5 | **Feature-Space FDA**           | 0.7272      | 0.6092     | Standard bottleneck spectral swapping.              |
+| 🥉 6 | **FDA Fine-tuned**              | 0.6970      | 0.5695     | Classic style transfer on raw images.               |
+| 📊 7 | Baseline (Zero-Shot)            | 0.6685      | 0.5387     | Standard transfer without adaptation.               |
+| 🔗 8 | CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering.                      |
+| ⚡ 9 | Energy-Regularized UDA          | 0.5276      | 0.4190     | OOD scoring for pseudo-labeling.                    |
+| 📉 10| FMC (Fourier Mixup Consistency) | 0.2871      | 0.2672     | Unstable consistency regularization.                |
+| 🛡️ 11| SFDA (Source-Free Adaptation)   | 0.2488      | 0.2477     | Privacy-preserving entropy minimization.            |
+| ⏱️ 12| TENT (Test-Time Adaptation)     | 0.2495      | 0.2480     | Inference-time BN optimization.                     |
 
 ---
 
-## 1.1 Cross-Architecture Comparison (Fixed Strategy: Multi-Scale FDA)
+## 1.1 Cross-Method-Model Comparison (Dice Score)
+Comprehensive evaluation of all key methods across all implemented architectures.
+
+| Architecture | Baseline | FDA (Bottleneck) | MS-FDA (Multi-Scale) | Adv-FDA (Regularized) |
+| :--- | :---: | :---: | :---: | :---: |
+| **ResNet-101 (U-Net)** | 0.6685 | 0.7272 | 0.7383 | 0.7301 |
+| **AnamNet** | *TBD* | *TBD* | 0.5198 | *TBD* |
+| **SegResNet** | *TBD* | *TBD* | 0.3834 | *TBD* |
+| **MISSFormer** | *TBD* | *TBD* | 0.2560 | *TBD* |
+
+---
+
+## 1.2 Cross-Architecture Comparison (Fixed Strategy: Multi-Scale FDA)
 This table compares different model backbones while keeping the Domain Adaptation strategy constant (**MS-FDA, L=0.01**) to evaluate architectural robustness.
 
 | Model Backbone | Complexity | Target Dice | Inference Speed | Verdict |
