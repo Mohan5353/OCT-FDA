@@ -15,17 +15,21 @@ This report documents the performance of various Domain Adaptation (DA) techniqu
 | Rank | Method                          | Target Dice | Target IoU | Key Strength / Observation                          |
 | :--- | :------------------------------ | :---------: | :--------: | :-------------------------------------------------- |
 | 🏆 **1** | **DDSP (Feature Disruption)** | **0.7569**  | **0.6435** | **Current Champion.** Best SRF (0.84) & PED (0.66). |
-| 🚀 **2** | **Multi-Scale Feature FDA**    | **0.7383**  | **0.6212** | **Multi-Level Alignment.** Aligns textures/anatomy. |
-| 🥈 3 | DANN (Domain Adversarial)       | 0.7527      | 0.6342     | Very strong feature-level alignment.                |
+| 🥈 2 | DANN (Domain Adversarial)       | 0.7527      | 0.6342     | Very strong feature-level alignment.                |
+| 🚀 **3** | **Multi-Scale Feature FDA**    | **0.7383**  | **0.6212** | **Multi-Level Alignment.** Aligns textures/anatomy. |
 | 🚀 4 | **Adv. Feature-Space FDA**     | **0.7301**  | **0.6128** | **Disentangled & Physics-Informed.** Robust.      |
 | 🚀 5 | **Feature-Space FDA**           | 0.7272      | 0.6092     | Highly novel. FDA on deep embedding features.       |
 | 🥉 6 | **FDA Fine-tuned**              | 0.6970      | 0.5695     | Strongest pixel-level style adaptation.             |
 | 📊 7 | Baseline (Zero-Shot)            | 0.6685      | 0.5387     | High anatomical accuracy, but scanner biased.       |
-| ⚡ 7 | Energy-Regularized UDA          | 0.5276      | 0.4190     | Smoother OOD scoring than softmax, but still noisy. |
-| 🔗 7 | CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering; noisy on target.     |
-| 📉 8 | FMC (Fourier Mixup Consistency) | 0.2871      | 0.2672     | High variance; unstable consistency regularization. |
-| 🛡️ 9 | SFDA (Source-Free Adaptation)   | 0.2488      | 0.2477     | Target-only entropy minimization collapsed to BG.   |
-| ⏱️ 10| TENT (Test-Time Adaptation)     | 0.2495      | 0.2480     | Batch-wise BN optimization collapsed.               |
+| 🔗 8 | CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering; noisy on target.     |
+| ⚡ 9 | Energy-Regularized UDA          | 0.5276      | 0.4190     | Smoother OOD scoring than softmax, but still noisy. |
+| 🧬 10| **AnamNet + MS-FDA**            | **0.5198**  | **0.4055** | **Lightweight AD-Blocks.** Efficient for edge.      |
+| 🏥 11| **SegResNet + MS-FDA**          | **0.3834**  | **0.2980** | **Residual Deep Supervision.** Needs pretraining.  |
+| 📉 12| FMC (Fourier Mixup Consistency) | 0.2871      | 0.2672     | High variance; unstable consistency regularization. |
+| 🤖 13| **MISSFormer + MS-FDA**         | **0.2560**  | **0.2110** | **Transformer-based.** OOM limited to 128x128.      |
+| 🛡️ 14| SFDA (Source-Free Adaptation)   | 0.2488      | 0.2477     | Target-only entropy minimization collapsed to BG.   |
+| ⏱️ 15| TENT (Test-Time Adaptation)     | 0.2495      | 0.2480     | Batch-wise BN optimization collapsed.               |
+| ❌ 16| Hyperbolic + KL                 | 0.2488      | 0.2477     | Failed. Collapsed to background class.              |
 
 ---
 
@@ -129,6 +133,21 @@ Evaluates the ability to accurately quantify fluid volume (pixel count MAE). Low
 - **Method:** Applies FDA spectral swapping at every resolution level (1/2, 1/4, 1/8, 1/16, 1/32) of the ResNet-101 encoder.
 - **Result:** **0.7383 Dice.**
 - **Insight:** This is the most effective FDA variant. By aligning low-level textures in the shallow layers and semantic structures in the deep layers, it bridges the scanner gap more comprehensively than bottleneck-only FDA.
+
+### 2.14. AnamNet + MS-FDA
+- **Method:** Uses the lightweight Anamorphic Depth (AD) blocks.
+- **Result:** **0.5198 Dice.**
+- **Insight:** Excellent parameter efficiency. While lower than ResNet-101 based models, its 0.52 Dice score at such a low parameter count makes it a prime candidate for mobile deployment where large ensembles are not feasible.
+
+### 2.15. SegResNet + MS-FDA
+- **Method:** Residual Deep Supervision architecture (2D adaptation of MONAI SegResNet).
+- **Result:** **0.3834 Dice.**
+- **Insight:** Performance was limited by lack of ImageNet pretraining. While structurally sound for medical volumes, the domain gap was too wide for training from scratch on this dataset size.
+
+### 2.16. MISSFormer + MS-FDA
+- **Method:** Hybrid Transformer-CNN encoder with Multi-Scale FDA.
+- **Result:** **0.2560 Dice.**
+- **Insight:** The quadratic complexity of self-attention forced a resolution reduction to 128x128. This loss of spatial detail, combined with the lack of transformer pretraining, caused the model to struggle with the fine boundaries of IRF/SRF lesions.
 
 ---
 
