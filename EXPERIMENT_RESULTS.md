@@ -33,6 +33,18 @@ This report documents the performance of various Domain Adaptation (DA) techniqu
 
 ---
 
+## 1.1 Cross-Architecture Comparison (Fixed Strategy: Multi-Scale FDA)
+This table compares different model backbones while keeping the Domain Adaptation strategy constant (**MS-FDA, L=0.01**) to evaluate architectural robustness.
+
+| Model Backbone | Complexity | Target Dice | Inference Speed | Verdict |
+| :--- | :--- | :---: | :---: | :--- |
+| **ResNet-101 (U-Net)** | High (Pretrained) | **0.7383** | Moderate | **Best Overall.** ImageNet weights are critical. |
+| **AnamNet** | **Ultra-Lightweight** | 0.5198 | **Very Fast** | **Best for Edge.** High efficiency/accuracy ratio. |
+| **SegResNet** | Moderate | 0.3834 | Fast | Needs medical-specific pretraining to shine. |
+| **MISSFormer** | High (Transformer) | 0.2560 | Slow | Limited by resolution (128x128) and data volume. |
+
+---
+
 ## 1.5 Advanced Clinical Evaluation Metrics
 To prove clinical utility and deployment safety, models are evaluated beyond Dice/IoU.
 
