@@ -38,7 +38,7 @@ Comprehensive evaluation of all key methods across all implemented architectures
 | **ResNet-101 (U-Net)** | 0.6685 | 0.7272 | 0.7383 | 0.7301 |
 | **AnamNet** | 0.3025 | 0.4059 | 0.5198 | **0.5362** |
 | **SegResNet** | **0.6557** | 0.5707 | 0.3834 | 0.4798 |
-| **MISSFormer** | 0.2350 | 0.2350 | 0.2560 | *TBD* |
+| **MISSFormer** | 0.2350 | 0.2350 | 0.2560 | 0.2350 |
 
 ---
 
