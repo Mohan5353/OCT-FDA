@@ -17,28 +17,30 @@ This table compares general Domain Adaptation methods using the default backbone
 | :--- | :------------------------------ | :---------: | :--------: | :-------------------------------------------------- |
 | 🏆 **1** | **DDSP (Feature Disruption)** | **0.7569**  | **0.6435** | **Current Champion.** Best SRF (0.84) & PED (0.66). |
 | 🥈 2 | DANN (Domain Adversarial)       | 0.7527      | 0.6342     | Very strong feature-level alignment.                |
-| 🚀 3 | **Multi-Scale Feature FDA**    | 0.7383      | 0.6212     | **Top Spectral.** Aligns multi-level textures.      |
-| 🚀 4 | **Adv. Feature-Space FDA**     | 0.7301      | 0.6128     | **Physics-Informed.** Robust & Disentangled.       |
-| 🚀 5 | **Feature-Space FDA**           | 0.7272      | 0.6092     | Standard bottleneck spectral swapping.              |
-| 🥉 6 | **FDA Fine-tuned**              | 0.6970      | 0.5695     | Classic style transfer on raw images.               |
-| 📊 7 | Baseline (Zero-Shot)            | 0.6685      | 0.5387     | Standard transfer without adaptation.               |
-| 🔗 8 | CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering.                      |
-| ⚡ 9 | Energy-Regularized UDA          | 0.5276      | 0.4190     | OOD scoring for pseudo-labeling.                    |
-| 📉 10| FMC (Fourier Mixup Consistency) | 0.2871      | 0.2672     | Unstable consistency regularization.                |
-| 🛡️ 11| SFDA (Source-Free Adaptation)   | 0.2488      | 0.2477     | Privacy-preserving entropy minimization.            |
-| ⏱️ 12| TENT (Test-Time Adaptation)     | 0.2495      | 0.2480     | Inference-time BN optimization.                     |
+| 🌟 3| **Dist. FDA (ResNet-101)**     | **0.7458**  | **0.6288** | **New Spectral SOTA.** Batch-Mean Stability.      |
+| 🚀 4 | **Multi-Scale Feature FDA**    | 0.7383      | 0.6212     | **Top MS.** Aligns multi-level textures.           |
+| 🚀 5 | **Adv. Feature-Space FDA**     | 0.7301      | 0.6128     | **Physics-Informed.** Robust & Disentangled.       |
+| 🚀 6 | **Feature-Space FDA**           | 0.7272      | 0.6092     | Standard bottleneck spectral swapping.              |
+| 🥉 7 | **FDA Fine-tuned**              | 0.6970      | 0.5695     | Classic style transfer on raw images.               |
+| 📊 8 | Baseline (Zero-Shot)            | 0.6685      | 0.5387     | Standard transfer without adaptation.               |
+| 🔗 9 | CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering.                      |
+| ⚡ 10| Energy-Regularized UDA          | 0.5276      | 0.4190     | OOD scoring for pseudo-labeling.                    |
+| 🌟 11| **Dist. FDA (SegResNet)**       | 0.4117      | 0.3210     | Batch-Averaged Style. High-VRAM. Stalled by sink.  |
+| 📉 12| FMC (Fourier Mixup Consistency) | 0.2871      | 0.2672     | Unstable consistency regularization.                |
+| 🛡️ 13| SFDA (Source-Free Adaptation)   | 0.2488      | 0.2477     | Privacy-preserving entropy minimization.            |
+| ⏱️ 14| TENT (Test-Time Adaptation)     | 0.2495      | 0.2480     | Inference-time BN optimization.                     |
 
 ---
 
 ## 1.1 Cross-Method-Model Comparison (Dice Score)
 Comprehensive evaluation of all key methods across all implemented architectures.
 
-| Architecture | Baseline | FDA (Bottleneck) | MS-FDA (Multi-Scale) | Adv-FDA (Regularized) |
-| :--- | :---: | :---: | :---: | :---: |
-| **ResNet-101 (U-Net)** | 0.6685 | 0.7272 | **0.7383** | 0.7301 |
-| **AnamNet** | 0.3025 | 0.4059 | 0.5198 | **0.5362** |
-| **SegResNet** | **0.6557** | 0.5707 | 0.3834 | 0.4798 |
-| **MISSFormer** | 0.2350 | 0.2350 | **0.2560** | 0.2350 |
+| Architecture | Baseline | FDA (Bottleneck) | MS-FDA (Multi-Scale) | Adv-FDA (1-to-1) | Dist-FDA (Batch-Mean) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **ResNet-101 (U-Net)** | 0.6685 | 0.7272 | 0.7383 | 0.7301 | **0.7458** |
+| **AnamNet** | 0.3025 | 0.4059 | 0.5198 | **0.5362** | 0.3297 |
+| **SegResNet** | **0.6557** | 0.5707 | 0.3834 | 0.4798 | 0.4117 |
+| **MISSFormer** | 0.2350 | 0.2350 | **0.2560** | 0.2350 | 0.0620 |
 
 ---
 
@@ -170,7 +172,17 @@ Evaluates the ability to accurately quantify fluid volume (pixel count MAE). Low
 - **Result:** **0.2560 Dice.**
 - **Insight:** The quadratic complexity of self-attention forced a resolution reduction to 128x128. This loss of spatial detail, combined with the lack of transformer pretraining, caused the model to struggle with the fine boundaries of IRF/SRF lesions.
 
+### 2.17. Batch-Averaged Distribution FDA (ResNet-101 & SegResNet)
+- **Method:** Instead of 1-to-1 amplitude swapping, this method calculates the **Batch Mean** of target amplitudes in feature space.
+- **Result:** **0.7458 Dice (ResNet-101)**, 0.4117 (SegResNet).
+- **Insight:** By leveraging a massive batch size (64) on 96GB VRAM, we extract a stable, generalized "style" from the target domain. For pretrained models like ResNet-101, this provides the highest spectral adaptation performance to date, nearly matching the DDSP state-of-the-art.
+
+### 2.18. MISSFormer + Dist-FDA
+- **Method:** Transformer backbone with Batch-Averaged FDA.
+- **Result:** **0.0620 Dice.**
+- **Insight:** The distribution-based approach failed for the transformer. The combination of low resolution (128x128) and batch-averaged features likely stripped away the high-frequency structural cues that the transformer's attention mechanism requires to delineate fluid boundaries.
+
 ---
 
 ## 3. Final Recommendation
-For production or clinical research, the **DDSP** model (`checkpoints/best_model_ddsp.pth`) is the definitive choice. It provides the highest accuracy across all fluid types, is the most robust to scanner-induced artifacts, and exhibited the most stable training behavior among all unsupervised methods.
+For production or clinical research, the **DDSP** model (`checkpoints/best_model_ddsp.pth`) remains the performance leader, but **ResNet-101 + Dist-FDA** is now the strongest alternative, providing comparable accuracy with a more interpretible spectral alignment strategy.
