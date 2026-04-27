@@ -118,3 +118,38 @@ def Advanced_Feature_FDA(src_feat, trg_feat, L=0.05):
     
     # Return mutated features, and the components for MI regularization
     return torch.real(out), amp_src_mutated, pha_src
+
+def Distribution_Feature_FDA(src_feat, trg_feat, L=0.05):
+    """
+    VRAM-Optimized FDA: Calculates the BATCH MEAN of the target amplitude spectrum
+    and injects this stable, generalized style into the source features via broadcasting.
+    """
+    import torch.fft as fft
+    import torch
+    import numpy as np
+    
+    fft_src = fft.fft2(src_feat, dim=(-2, -1))
+    fft_trg = fft.fft2(trg_feat, dim=(-2, -1))
+    
+    amp_src, pha_src = torch.abs(fft_src), torch.angle(fft_src)
+    amp_trg = torch.abs(fft_trg)
+    
+    # Calculate Mean Target Distribution across the batch (dim=0)
+    mean_amp_trg = torch.mean(amp_trg, dim=0, keepdim=True)
+    
+    amp_src_shift = fft.fftshift(amp_src, dim=(-2, -1))
+    mean_amp_trg_shift = fft.fftshift(mean_amp_trg, dim=(-2, -1))
+    
+    B, C, H, W = amp_src.shape
+    b = int(np.floor(min(H, W) * L))
+    
+    if b > 0:
+        cy, cx = H // 2, W // 2
+        # Broadcasting handles [1, C, H, W] to [B, C, H, W] assignment natively
+        amp_src_shift[:, :, cy-b:cy+b, cx-b:cx+b] = mean_amp_trg_shift[:, :, cy-b:cy+b, cx-b:cx+b]
+    
+    amp_src_mutated = fft.ifftshift(amp_src_shift, dim=(-2, -1))
+    fft_src_mutated = amp_src_mutated * torch.exp(1j * pha_src)
+    out = fft.ifft2(fft_src_mutated, dim=(-2, -1))
+    
+    return torch.real(out), amp_src_mutated, pha_src
