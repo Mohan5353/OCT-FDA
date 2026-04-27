@@ -47,6 +47,10 @@ class CustomFlexibleFDAModel(nn.Module):
             elif self.mode == 'ms-fda':
                 for i in range(len(feats_src)):
                     f_src, f_trg = feats_src[i], feats_trg[i]
+                    # Skip if channels are 0 (e.g., ConvNeXt dummy stage)
+                    if f_src.shape[1] == 0:
+                        continue
+                        
                     if f_src.shape[0] > f_trg.shape[0]:
                         f_trg = f_trg.repeat(f_src.shape[0] // f_trg.shape[0] + 1, 1, 1, 1)[:f_src.shape[0]]
                     else: f_trg = f_trg[:f_src.shape[0]]
