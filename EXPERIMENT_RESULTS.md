@@ -16,20 +16,21 @@ This table compares general Domain Adaptation methods using the default backbone
 | Rank | Method                          | Target Dice | Target IoU | Key Strength / Observation                          |
 | :--- | :------------------------------ | :---------: | :--------: | :-------------------------------------------------- |
 | 🏆 **1** | **DDSP (Feature Disruption)** | **0.7569**  | **0.6435** | **Current Champion.** Best SRF (0.84) & PED (0.66). |
-| 🥈 2 | DANN (Domain Adversarial)       | 0.7527      | 0.6342     | Very strong feature-level alignment.                |
-| 🌟 3| **Dist. FDA (ResNet-101)**     | **0.7458**  | **0.6288** | **New Spectral SOTA.** Batch-Mean Stability.      |
-| 🚀 4 | **Multi-Scale Feature FDA**    | 0.7383      | 0.6212     | **Top MS.** Aligns multi-level textures.           |
-| 🚀 5 | **Adv. Feature-Space FDA**     | 0.7301      | 0.6128     | **Physics-Informed.** Robust & Disentangled.       |
-| 🚀 6 | **Feature-Space FDA**           | 0.7272      | 0.6092     | Standard bottleneck spectral swapping.              |
-| 🦖 7 | **Dist. FDA (ConvNeXt-L)**     | 0.7057      | 0.5891     | **Modern Backbone.** Extreme capacity (320x320).    |
-| 🥉 8 | **FDA Fine-tuned**              | 0.6970      | 0.5695     | Classic style transfer on raw images.               |
-| 📊 9 | Baseline (Zero-Shot)            | 0.6685      | 0.5387     | Standard transfer without adaptation.               |
-| 🔗 10| CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering.                      |
-| ⚡ 11| Energy-Regularized UDA          | 0.5276      | 0.4190     | OOD scoring for pseudo-labeling.                    |
-| 🌟 12| **Dist. FDA (SegResNet)**       | 0.4117      | 0.3210     | Batch-Averaged Style. High-VRAM. Stalled by sink.  |
-| 📉 13| FMC (Fourier Mixup Consistency) | 0.2871      | 0.2672     | Unstable consistency regularization.                |
-| 🛡️ 14| SFDA (Source-Free Adaptation)   | 0.2488      | 0.2477     | Privacy-preserving entropy minimization.            |
-| ⏱️ 15| TENT (Test-Time Adaptation)     | 0.2495      | 0.2480     | Inference-time BN optimization.                     |
+| 🦖 2 | **Baseline (ConvNeXt-L)**       | **0.7567**  | **0.6388** | **Strongest Baseline.** Zero-Shot Modern Backbone. |
+| 🥈 3 | DANN (Domain Adversarial)       | 0.7527      | 0.6342     | Very strong feature-level alignment.                |
+| 🌟 4| **Dist. FDA (ResNet-101)**     | **0.7458**  | **0.6288** | **New Spectral SOTA.** Batch-Mean Stability.      |
+| 🚀 5 | **Multi-Scale Feature FDA**    | 0.7383      | 0.6212     | **Top MS.** Aligns multi-level textures.           |
+| 🚀 6 | **Adv. Feature-Space FDA**     | 0.7301      | 0.6128     | **Physics-Informed.** Robust & Disentangled.       |
+| 🚀 7 | **Feature-Space FDA**           | 0.7272      | 0.6092     | Standard bottleneck spectral swapping.              |
+| 🦖 8 | **Dist. FDA (ConvNeXt-L)**     | 0.7057      | 0.5891     | Modern Backbone. Stalled at 320x320.                |
+| 🥉 9 | **FDA Fine-tuned**              | 0.6970      | 0.5695     | Classic style transfer on raw images.               |
+| 📊 10| Baseline (Zero-Shot)            | 0.6685      | 0.5387     | Standard transfer without adaptation.               |
+| 🔗 11| CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering.                      |
+| ⚡ 12| Energy-Regularized UDA          | 0.5276      | 0.4190     | OOD scoring for pseudo-labeling.                    |
+| 🌟 13| **Dist. FDA (SegResNet)**       | 0.4117      | 0.3210     | Batch-Averaged Style. High-VRAM. Stalled by sink.  |
+| 📉 14| FMC (Fourier Mixup Consistency) | 0.2871      | 0.2672     | Unstable consistency regularization.                |
+| 🛡️ 15| SFDA (Source-Free Adaptation)   | 0.2488      | 0.2477     | Privacy-preserving entropy minimization.            |
+| ⏱️ 16| TENT (Test-Time Adaptation)     | 0.2495      | 0.2480     | Inference-time BN optimization.                     |
 
 ---
 
@@ -39,7 +40,7 @@ Comprehensive evaluation of all key methods across all implemented architectures
 | Architecture | Baseline | FDA (Bottleneck) | MS-FDA (Multi-Scale) | Adv-FDA (1-to-1) | Dist-FDA (Batch-Mean) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **ResNet-101 (U-Net)** | 0.6685 | 0.7272 | 0.7383 | 0.7301 | **0.7458** |
-| **ConvNeXt-L (U-Net)** | *TBD* | *TBD* | *TBD* | *TBD* | **0.7057** |
+| **ConvNeXt-L (U-Net)** | **0.7567** | *Running* | *TBD* | *TBD* | **0.7057** |
 | **AnamNet** | 0.3025 | 0.4059 | 0.5198 | **0.5362** | 0.3297 |
 | **SegResNet** | **0.6557** | 0.5707 | 0.3834 | 0.4798 | 0.4117 |
 | **MISSFormer** | 0.2350 | 0.2350 | **0.2560** | 0.2350 | 0.0620 |
