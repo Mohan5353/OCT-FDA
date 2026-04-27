@@ -132,6 +132,10 @@ def main(args):
     elif args.model_name == "missformer": base_model = MISSFormer()
     elif args.model_name == "resnet101": 
         base_model = smp.Unet(encoder_name="resnet101", encoder_weights="imagenet", in_channels=3, classes=4)
+    elif args.model_name == "resnet50":
+        base_model = smp.Unet(encoder_name="resnet50", encoder_weights="imagenet", in_channels=3, classes=4)
+    elif args.model_name == "resnet18":
+        base_model = smp.Unet(encoder_name="resnet18", encoder_weights="imagenet", in_channels=3, classes=4)
     elif args.model_name == "convnext_large":
         base_model = smp.Unet(encoder_name="tu-convnext_large", encoder_weights="imagenet", in_channels=3, classes=4)
     else: raise ValueError("Unknown model name")
@@ -268,7 +272,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_name", type=str, required=True, choices=["anamnet", "segresnet", "missformer", "resnet101", "convnext_large"])
+    parser.add_argument("--model_name", type=str, required=True, choices=["anamnet", "segresnet", "missformer", "resnet101", "resnet50", "resnet18", "convnext_large"])
     parser.add_argument("--mode", type=str, default="baseline", choices=["baseline", "fda", "ms-fda", "adv-fda", "adv-1to1", "ddsp", "dann"])
     parser.add_argument("--data_root", type=str, default="data")
     parser.add_argument("--batch_size", type=int, default=4)
