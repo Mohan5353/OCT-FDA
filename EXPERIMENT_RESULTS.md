@@ -40,7 +40,7 @@ Comprehensive evaluation of all key methods across all implemented architectures
 | Architecture | Baseline | FDA (Bottleneck) | MS-FDA (Multi-Scale) | Adv-FDA (1-to-1) | Dist-FDA (Batch-Mean) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | ResNet-101 (U-Net) | 0.6685 | 0.7272 | 0.7383 | 0.7301 | **0.7458** |
-| **ConvNeXt-L (U-Net)** | **0.7567** | 0.6594 | *Running* | *TBD* | **0.7057** |
+| **ConvNeXt-L (U-Net)** | **0.7567** | 0.6594 | 0.6764 | 0.7194 | 0.7057 |
 
 | AnamNet | 0.3025 | 0.4059 | 0.5198 | **0.5362** | 0.3297 |
 | SegResNet | **0.6557** | 0.5707 | 0.3834 | 0.4798 | 0.4117 |
@@ -93,8 +93,12 @@ Lower is better.
 
 ### 2.17. Batch-Averaged Distribution FDA (ResNet-101 & SegResNet)
 - **Method:** Calculates the Batch Mean of target amplitudes in feature space.
-- **Result:** 0.7458 Dice (ResNet-101).
+- **Result:** **0.7458 Dice (ResNet-101).**
 - **Insight:** Extracting a stable "style" from the target domain using large batches (64) provides the highest spectral adaptation performance to date.
+
+### 2.19. ConvNeXt-L Robustness Analysis
+- **Result:** Baseline **0.7567 Dice** (Rank 2).
+- **Insight:** ConvNeXt-L displayed remarkable zero-shot robustness, outperforming all adapted ResNet-101 models by default. Interestingly, applying spectral adaptation (FDA/Dist-FDA) slightly *decreased* its performance. This suggests that modern, high-capacity backbones like ConvNeXt are inherently more invariant to scanner styles, and spectral swapping may perturb their highly optimized feature representations.
 
 ---
 
