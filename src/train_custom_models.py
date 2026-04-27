@@ -58,6 +58,15 @@ class CustomFlexibleFDAModel(nn.Module):
                 f_src, f_trg = feats_src[idx], feats_trg[idx]
                 mutated_feat, amp, pha = Distribution_Feature_FDA(f_src, f_trg, L=self.fda_L)
                 feats_src[idx] = mutated_feat
+
+            elif self.mode == 'adv-1to1':
+                idx = -1
+                f_src, f_trg = feats_src[idx], feats_trg[idx]
+                if f_src.shape[0] > f_trg.shape[0]:
+                    f_trg = f_trg.repeat(f_src.shape[0] // f_trg.shape[0] + 1, 1, 1, 1)[:f_src.shape[0]]
+                else: f_trg = f_trg[:f_src.shape[0]]
+                mutated_feat, amp, pha = Advanced_Feature_FDA(f_src, f_trg, L=self.fda_L)
+                feats_src[idx] = mutated_feat
             
         if hasattr(self.base_model, 'forward_from_features'):
             preds = self.base_model.forward_from_features(feats_src)
@@ -65,7 +74,7 @@ class CustomFlexibleFDAModel(nn.Module):
             decoder_output = self.base_model.decoder(feats_src)
             preds = self.base_model.segmentation_head(decoder_output)
             
-        if self.mode == 'adv-fda' and x_trg is not None:
+        if (self.mode == 'adv-fda' or self.mode == 'adv-1to1') and x_trg is not None:
             return preds, amp, pha, mutated_feat
         return preds
 
@@ -78,12 +87,14 @@ def main(args):
     elif args.model_name == "missformer": base_model = MISSFormer()
     elif args.model_name == "resnet101": 
         base_model = smp.Unet(encoder_name="resnet101", encoder_weights="imagenet", in_channels=3, classes=4)
+    elif args.model_name == "convnext_large":
+        base_model = smp.Unet(encoder_name="tu-convnext_large", encoder_weights="imagenet", in_channels=3, classes=4)
     else: raise ValueError("Unknown model name")
 
     model = CustomFlexibleFDAModel(base_model, mode=args.mode, fda_L=args.fda_L).to(device)
 
     mi_estimator, mi_optimizer = None, None
-    if args.mode == 'adv-fda':
+    if args.mode in ['adv-fda', 'adv-1to1']:
         dummy = torch.randn(1, 3, args.img_size, args.img_size).to(device)
         with torch.no_grad():
             if hasattr(base_model, 'get_encoder_features'):
@@ -105,8 +116,8 @@ def main(args):
     class_weights = torch.tensor([1.0, 50.0, 50.0, 100.0]).to(device)
     seg_criterion = nn.CrossEntropyLoss(weight=class_weights)
     dice_loss_fn = smp.losses.DiceLoss(mode='multiclass')
-    phys_loss_fn = PhysicsAttenuationLoss().to(device) if args.mode == 'adv-fda' else None
-    topo_loss_fn = TopologicalLoss().to(device) if args.mode == 'adv-fda' else None
+    phys_loss_fn = PhysicsAttenuationLoss().to(device) if args.mode in ['adv-fda', 'adv-1to1'] else None
+    topo_loss_fn = TopologicalLoss().to(device) if args.mode in ['adv-fda', 'adv-1to1'] else None
 
     best_val_dice = 0.0
     from torchmetrics.classification import MulticlassF1Score
@@ -126,7 +137,7 @@ def main(args):
                 trg_imgs = next(trg_iter)['image'].to(device)
             optimizer.zero_grad()
             if mi_optimizer: mi_optimizer.zero_grad()
-            if args.mode == 'adv-fda':
+            if args.mode in ['adv-fda', 'adv-1to1']:
                 outputs, amp, pha, mutated_feat = model(src_imgs, trg_imgs)
                 l_seg = seg_criterion(outputs, src_masks) + dice_loss_fn(outputs, src_masks)
                 l_mi = torch.clamp(mi_loss(mi_estimator, amp, pha), min=0.0)
@@ -160,8 +171,8 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_name", type=str, required=True, choices=["anamnet", "segresnet", "missformer", "resnet101"])
-    parser.add_argument("--mode", type=str, default="baseline", choices=["baseline", "fda", "ms-fda", "adv-fda"])
+    parser.add_argument("--model_name", type=str, required=True, choices=["anamnet", "segresnet", "missformer", "resnet101", "convnext_large"])
+    parser.add_argument("--mode", type=str, default="baseline", choices=["baseline", "fda", "ms-fda", "adv-fda", "adv-1to1"])
     parser.add_argument("--data_root", type=str, default="data")
     parser.add_argument("--batch_size", type=int, default=4)
     parser.add_argument("--epochs", type=int, default=15)
