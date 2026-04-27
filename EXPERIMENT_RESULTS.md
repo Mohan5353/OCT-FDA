@@ -21,14 +21,15 @@ This table compares general Domain Adaptation methods using the default backbone
 | 🚀 4 | **Multi-Scale Feature FDA**    | 0.7383      | 0.6212     | **Top MS.** Aligns multi-level textures.           |
 | 🚀 5 | **Adv. Feature-Space FDA**     | 0.7301      | 0.6128     | **Physics-Informed.** Robust & Disentangled.       |
 | 🚀 6 | **Feature-Space FDA**           | 0.7272      | 0.6092     | Standard bottleneck spectral swapping.              |
-| 🥉 7 | **FDA Fine-tuned**              | 0.6970      | 0.5695     | Classic style transfer on raw images.               |
-| 📊 8 | Baseline (Zero-Shot)            | 0.6685      | 0.5387     | Standard transfer without adaptation.               |
-| 🔗 9 | CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering.                      |
-| ⚡ 10| Energy-Regularized UDA          | 0.5276      | 0.4190     | OOD scoring for pseudo-labeling.                    |
-| 🌟 11| **Dist. FDA (SegResNet)**       | 0.4117      | 0.3210     | Batch-Averaged Style. High-VRAM. Stalled by sink.  |
-| 📉 12| FMC (Fourier Mixup Consistency) | 0.2871      | 0.2672     | Unstable consistency regularization.                |
-| 🛡️ 13| SFDA (Source-Free Adaptation)   | 0.2488      | 0.2477     | Privacy-preserving entropy minimization.            |
-| ⏱️ 14| TENT (Test-Time Adaptation)     | 0.2495      | 0.2480     | Inference-time BN optimization.                     |
+| 🦖 7 | **Dist. FDA (ConvNeXt-L)**     | 0.7057      | 0.5891     | **Modern Backbone.** Extreme capacity (320x320).    |
+| 🥉 8 | **FDA Fine-tuned**              | 0.6970      | 0.5695     | Classic style transfer on raw images.               |
+| 📊 9 | Baseline (Zero-Shot)            | 0.6685      | 0.5387     | Standard transfer without adaptation.               |
+| 🔗 10| CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering.                      |
+| ⚡ 11| Energy-Regularized UDA          | 0.5276      | 0.4190     | OOD scoring for pseudo-labeling.                    |
+| 🌟 12| **Dist. FDA (SegResNet)**       | 0.4117      | 0.3210     | Batch-Averaged Style. High-VRAM. Stalled by sink.  |
+| 📉 13| FMC (Fourier Mixup Consistency) | 0.2871      | 0.2672     | Unstable consistency regularization.                |
+| 🛡️ 14| SFDA (Source-Free Adaptation)   | 0.2488      | 0.2477     | Privacy-preserving entropy minimization.            |
+| ⏱️ 15| TENT (Test-Time Adaptation)     | 0.2495      | 0.2480     | Inference-time BN optimization.                     |
 
 ---
 
@@ -38,6 +39,7 @@ Comprehensive evaluation of all key methods across all implemented architectures
 | Architecture | Baseline | FDA (Bottleneck) | MS-FDA (Multi-Scale) | Adv-FDA (1-to-1) | Dist-FDA (Batch-Mean) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **ResNet-101 (U-Net)** | 0.6685 | 0.7272 | 0.7383 | 0.7301 | **0.7458** |
+| **ConvNeXt-L (U-Net)** | *TBD* | *TBD* | *TBD* | *TBD* | **0.7057** |
 | **AnamNet** | 0.3025 | 0.4059 | 0.5198 | **0.5362** | 0.3297 |
 | **SegResNet** | **0.6557** | 0.5707 | 0.3834 | 0.4798 | 0.4117 |
 | **MISSFormer** | 0.2350 | 0.2350 | **0.2560** | 0.2350 | 0.0620 |
