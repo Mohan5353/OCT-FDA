@@ -16,6 +16,7 @@ from dann_modules import DomainDiscriminator
 from models.anamnet import AnamNet
 from models.segresnet import SegResNet
 from models.missformer import MISSFormer
+from models.tiny_unet import TinyUnet
 
 class CustomFlexibleUDAModel(nn.Module):
     def __init__(self, base_model, mode='baseline', fda_L=0.01):
@@ -136,14 +137,21 @@ def main(args):
     if args.model_name == "anamnet": base_model = AnamNet()
     elif args.model_name == "segresnet": base_model = SegResNet()
     elif args.model_name == "missformer": base_model = MISSFormer()
+    elif args.model_name == "tiny_unet": base_model = TinyUnet()
     elif args.model_name == "resnet101": 
         base_model = smp.Unet(encoder_name="resnet101", encoder_weights="imagenet", in_channels=3, classes=4)
     elif args.model_name == "resnet50":
         base_model = smp.Unet(encoder_name="resnet50", encoder_weights="imagenet", in_channels=3, classes=4)
     elif args.model_name == "resnet18":
         base_model = smp.Unet(encoder_name="resnet18", encoder_weights="imagenet", in_channels=3, classes=4)
+    elif args.model_name == "resnet10":
+        base_model = smp.Unet(encoder_name="tu-resnet10", encoder_weights="imagenet", in_channels=3, classes=4)
+    elif args.model_name == "mobilenet_v2":
+        base_model = smp.Unet(encoder_name="mobilenet_v2", encoder_weights="imagenet", in_channels=3, classes=4)
     elif args.model_name == "convnext_large":
         base_model = smp.Unet(encoder_name="tu-convnext_large", encoder_weights="imagenet", in_channels=3, classes=4)
+    elif args.model_name == "convnext_tiny":
+        base_model = smp.Unet(encoder_name="tu-convnext_tiny", encoder_weights="imagenet", in_channels=3, classes=4)
     else: raise ValueError("Unknown model name")
 
     model = CustomFlexibleUDAModel(base_model, mode=args.mode, fda_L=args.fda_L).to(device)
@@ -278,7 +286,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_name", type=str, required=True, choices=["anamnet", "segresnet", "missformer", "resnet101", "resnet50", "resnet18", "convnext_large"])
+    parser.add_argument("--model_name", type=str, required=True, choices=["anamnet", "segresnet", "missformer", "resnet101", "resnet50", "resnet18", "resnet10", "mobilenet_v2", "convnext_large", "convnext_tiny", "tiny_unet"])
     parser.add_argument("--mode", type=str, default="baseline", choices=["baseline", "fda", "ms-fda", "adv-fda", "adv-1to1", "ddsp", "dann"])
     parser.add_argument("--data_root", type=str, default="data")
     parser.add_argument("--batch_size", type=int, default=4)
