@@ -78,6 +78,12 @@ class CustomFlexibleUDAModel(nn.Module):
                 # Disrupt the second level features
                 idx = 1
                 f_src, f_trg = feats_src[idx], feats_trg[idx]
+                
+                # Match batch size for disruption module
+                if f_src.shape[0] > f_trg.shape[0]:
+                    f_trg = f_trg.repeat(f_src.shape[0] // f_trg.shape[0] + 1, 1, 1, 1)[:f_src.shape[0]]
+                else: f_trg = f_trg[:f_src.shape[0]]
+                
                 src_disrupted, _ = ddm(f_src, f_trg)
                 
                 # We need consistent prediction for consistency loss
