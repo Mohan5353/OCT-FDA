@@ -40,13 +40,13 @@ Comprehensive evaluation of all key methods across all implemented architectures
 | Architecture | Baseline | FDA (Bot) | MS-FDA | Adv-1to1 | Dist-FDA | DANN (Adv) | DDSP (Mix) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **ResNet-101 (U-Net)** | 0.6685 | 0.7272 | 0.7383 | 0.7301 | **0.7458** | 0.7527 | **0.7569** |
-| **ResNet-50 (U-Net)** | 0.6402 | 0.6633 | 0.7115 | 0.6303 | 0.7336 | **0.7519** | *TBD* |
-| **ResNet-18 (U-Net)** | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* |
-| **ResNet-10 (U-Net)** | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* |
-| **MobileNetV2 (U-Net)** | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* |
-| **ConvNeXt-L (U-Net)** | **0.7567** | 0.6594 | 0.6764 | 0.7194 | 0.7057 | 0.6879 | *Running* |
+| **ResNet-50 (U-Net)** | 0.6402 | 0.6633 | 0.7115 | 0.6303 | 0.7336 | **0.7519** | 0.7298 |
+| **ResNet-18 (U-Net)** | **0.6827** | 0.6186 | 0.6360 | 0.6354 | 0.6538 | 0.5844 | 0.5881 |
+| **ResNet-10 (U-Net)** | 0.5146 | *TBD* | **0.6398** | *TBD* | *TBD* | *TBD* | *TBD* |
+| **MobileNetV2 (U-Net)** | **0.6635** | *TBD* | 0.6170 | *TBD* | *TBD* | *TBD* | *TBD* |
+| **ConvNeXt-L (U-Net)** | **0.7567** | 0.6594 | 0.6764 | 0.7194 | 0.7057 | 0.6879 | 0.6794 |
 | **ConvNeXt-T (U-Net)** | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* |
-| AnamNet | 0.3025 | 0.4059 | 0.5198 | **0.5362** | 0.3297 | *TBD* | *TBD* |
+| AnamNet | 0.3025 | 0.4059 | 0.5198 | **0.5362** | 0.3297 | 0.2775 | *TBD* |
 | SegResNet | **0.6557** | 0.5707 | 0.3834 | 0.4798 | 0.4117 | *TBD* | *TBD* |
 | MISSFormer | 0.2350 | 0.2350 | **0.2560** | 0.2350 | 0.0620 | *TBD* | *TBD* |
 | **TinyUnet** | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* |
