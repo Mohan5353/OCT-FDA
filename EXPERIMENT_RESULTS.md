@@ -45,7 +45,7 @@ Comprehensive evaluation of all key methods across all implemented architectures
 | **ResNet-10 (U-Net)** | 0.5146 | *TBD* | **0.6398** | *TBD* | *TBD* | *TBD* | *TBD* |
 | **MobileNetV2 (U-Net)** | **0.6635** | *TBD* | 0.6170 | *TBD* | *TBD* | *TBD* | *TBD* |
 | **ConvNeXt-L (U-Net)** | **0.7567** | 0.6594 | 0.6764 | 0.7194 | 0.7057 | 0.6879 | 0.6794 |
-| **ConvNeXt-T (U-Net)** | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* |
+| **ConvNeXt-T (U-Net)** | 0.5441 | 0.3583 | 0.4139 | **0.5449** | 0.4152 | 0.3708 | 0.2846 |
 | **AnamNet** | 0.3025 | 0.4059 | 0.5198 | **0.5362** | 0.3297 | 0.2775 | 0.4625 |
 | **SegResNet** | **0.6557** | 0.5707 | 0.3834 | 0.4798 | 0.4117 | 0.5597 | 0.6043 |
 | **MISSFormer** | 0.2350 | 0.2350 | **0.2560** | 0.2350 | 0.0620 | 0.0645 | 0.0959 |
