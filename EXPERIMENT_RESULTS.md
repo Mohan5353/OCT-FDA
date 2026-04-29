@@ -46,10 +46,11 @@ Comprehensive evaluation of all key methods across all implemented architectures
 | **MobileNetV2 (U-Net)** | **0.6635** | *TBD* | 0.6170 | *TBD* | *TBD* | *TBD* | *TBD* |
 | **ConvNeXt-L (U-Net)** | **0.7567** | 0.6594 | 0.6764 | 0.7194 | 0.7057 | 0.6879 | 0.6794 |
 | **ConvNeXt-T (U-Net)** | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* |
-| AnamNet | 0.3025 | 0.4059 | 0.5198 | **0.5362** | 0.3297 | 0.2775 | *TBD* |
-| SegResNet | **0.6557** | 0.5707 | 0.3834 | 0.4798 | 0.4117 | *TBD* | *TBD* |
-| MISSFormer | 0.2350 | 0.2350 | **0.2560** | 0.2350 | 0.0620 | *TBD* | *TBD* |
-| **TinyUnet** | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* | *TBD* |
+| **AnamNet** | 0.3025 | 0.4059 | 0.5198 | **0.5362** | 0.3297 | 0.2775 | 0.4625 |
+| **SegResNet** | **0.6557** | 0.5707 | 0.3834 | 0.4798 | 0.4117 | 0.5597 | 0.6043 |
+| **MISSFormer** | 0.2350 | 0.2350 | **0.2560** | 0.2350 | 0.0620 | 0.0645 | 0.0959 |
+| **TinyUnet** | 0.3697 | *TBD* | **0.5619** | *TBD* | *TBD* | *TBD* | *TBD* |
+
 
 
 ---
