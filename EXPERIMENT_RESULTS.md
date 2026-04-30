@@ -37,7 +37,7 @@ This table compares general Domain Adaptation methods using the default backbone
 ## 1.1 Cross-Method-Model Comparison (Dice Score)
 Comprehensive evaluation of all key methods across all implemented architectures.
 
-| Architecture | Baseline | FDA (Bot) | MS-FDA | Adv-1to1 | Dist-FDA | DANN (Adv) | DDSP (Mix) |
+| Architecture | Baseline | FDA (Bot) | MS-FDA (Multi-Scale) | Adv-1to1 | Dist-FDA | DANN (Adv) | DDSP (Mix) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **ResNet-101 (U-Net)** | 0.6685 | 0.7272 | 0.7383 | 0.7301 | **0.7458** | 0.7527 | **0.7569** |
 | **ResNet-50 (U-Net)** | 0.6402 | 0.6633 | 0.7115 | 0.6303 | 0.7336 | **0.7519** | 0.7298 |
