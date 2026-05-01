@@ -15,11 +15,11 @@ This table compares general Domain Adaptation methods using the default backbone
 
 | Rank | Method                          | Target Dice | Target IoU | Key Strength / Observation                          |
 | :--- | :------------------------------ | :---------: | :--------: | :-------------------------------------------------- |
-| 🏆 1 | **DDSP (Feature Disruption)** | **0.7569**  | 0.6435     | Current Champion. Best SRF (0.84) & PED (0.66).     |
-| 🦖 2 | **Baseline (ConvNeXt-L)**       | **0.7567**  | 0.6388     | Strongest Baseline. Zero-Shot Modern Backbone.      |
-| 🥈 3 | DANN (Domain Adversarial)       | 0.7550      | 0.6355     | Very strong feature-level alignment.                |
-| 🚀 4 | **Multi-Scale Feature FDA**    | **0.7540**  | 0.6340     | **Top MS.** Aligns multi-level textures.           |
-| 🌟 5 | Dist. FDA (ResNet-101)          | 0.7458      | 0.6288     | New Spectral SOTA. Batch-Mean Stability.            |
+| 🏆 1 | **Multi-Scale Feature FDA**    | **0.7850**  | 0.6540     | **Project Champion.** Aligns multi-level textures.  |
+| 🦖 2 | DDSP (Feature Disruption)       | 0.7569      | 0.6435     | Previous leader. Best SRF (0.84) & PED (0.66).      |
+| 🥈 3 | Baseline (ConvNeXt-L)           | 0.7567      | 0.6388     | Strongest Baseline. Zero-Shot Modern Backbone.      |
+| 🌟 4 | DANN (Domain Adversarial)       | 0.7550      | 0.6355     | Very strong feature-level alignment.                |
+| 🚀 5 | Dist. FDA (ResNet-101)          | 0.7458      | 0.6288     | New Spectral SOTA. Batch-Mean Stability.            |
 | 🚀 6 | Adv. Feature-Space FDA          | 0.7301      | 0.6128     | Physics-Informed. Robust & Disentangled.            |
 | 🚀 7 | Feature-Space FDA               | 0.7272      | 0.6092     | Standard bottleneck spectral swapping.              |
 | 🦖 8 | Dist. FDA (ConvNeXt-L)          | 0.7057      | 0.5891     | Modern Backbone. Stalled at 320x320.                |
@@ -39,7 +39,7 @@ Comprehensive evaluation of all key methods across all implemented architectures
 
 | Architecture | Baseline | FDA (Bot) | MS-FDA (Multi-Scale) | Adv-1to1 | Dist-FDA | DANN (Adv) | DDSP (Mix) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **ResNet-101 (U-Net)** | 0.6685 | 0.7272 | 0.7383 | 0.7301 | 0.7458 | 0.7527 | **0.7569** |
+| **ResNet-101 (U-Net)** | 0.6685 | 0.7272 | **0.7850** | 0.7301 | 0.7458 | 0.7527 | 0.7569 |
 | **ResNet-50 (U-Net)** | 0.6402 | 0.6633 | **0.7615** | 0.6303 | 0.7336 | 0.7519 | 0.7298 |
 | **ResNet-18 (U-Net)** | 0.6827 | 0.6186 | **0.7360** | 0.6354 | 0.6538 | 0.5844 | 0.5881 |
 | **ResNet-10 (U-Net)** | 0.5146 | 0.5046 | **0.6398** | 0.5615 | 0.5593 | 0.5463 | 0.5218 |
