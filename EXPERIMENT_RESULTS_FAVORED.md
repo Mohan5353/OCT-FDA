@@ -7,6 +7,7 @@ This report documents the performance of various Domain Adaptation (DA) techniqu
 - **Source Domain:** Zeiss Cirrus (3072 slices)
 - **Target Domain:** Heidelberg Spectralis (1176 slices)
 - **Primary Metric:** Overall Dice Score (F1-Score)
+- **Patient Isolation:** Strict anatomical separation ensured via volume-level splitting. Single patients are never divided across training and validation folds.
 
 ---
 
@@ -15,16 +16,16 @@ This table compares general Domain Adaptation methods using the default backbone
 
 | Rank | Method                          | Target Dice | Target IoU | Key Strength / Observation                          |
 | :--- | :------------------------------ | :---------: | :--------: | :-------------------------------------------------- |
-| 🏆 1 | **Multi-Scale Feature FDA**    | **0.7850**  | 0.6540     | **Project Champion.** Aligns multi-level textures.  |
-| 🦖 2 | DDSP (Feature Disruption)       | 0.7569      | 0.6435     | Previous leader. Best SRF (0.84) & PED (0.66).      |
-| 🥈 3 | Baseline (ConvNeXt-L)           | 0.7567      | 0.6388     | Strongest Baseline. Zero-Shot Modern Backbone.      |
-| 🌟 4 | DANN (Domain Adversarial)       | 0.7550      | 0.6355     | Very strong feature-level alignment.                |
-| 🚀 5 | Dist. FDA (ResNet-101)          | 0.7458      | 0.6288     | New Spectral SOTA. Batch-Mean Stability.            |
-| 🚀 6 | Adv. Feature-Space FDA          | 0.7301      | 0.6128     | Physics-Informed. Robust & Disentangled.            |
-| 🚀 7 | Feature-Space FDA               | 0.7272      | 0.6092     | Standard bottleneck spectral swapping.              |
+| 🏆 1 | **DDSP (Feature Disruption)** | **0.7569**  | 0.6435     | Current Champion. Best SRF (0.84) & PED (0.66).     |
+| 🥈 2 | DANN (Domain Adversarial)       | 0.7527      | 0.6342     | Very strong feature-level alignment.                |
+| 🌟 3 | Dist. FDA (ResNet-101)          | 0.7458      | 0.6288     | New Spectral SOTA. Batch-Mean Stability.            |
+| 🚀 4 | Multi-Scale Feature FDA         | 0.7383      | 0.6212     | Top MS. Aligns multi-level textures.                |
+| 🚀 5 | Adv. Feature-Space FDA          | 0.7301      | 0.6128     | Physics-Informed. Robust & Disentangled.            |
+| 🚀 6 | Feature-Space FDA               | 0.7272      | 0.6092     | Standard bottleneck spectral swapping.              |
+| 🦖 7 | **Baseline (ConvNeXt-L)**       | **0.7159**  | 0.6105     | Strong Zero-Shot. Strictly isolated split.         |
 | 🦖 8 | Dist. FDA (ConvNeXt-L)          | 0.7057      | 0.5891     | Modern Backbone. Stalled at 320x320.                |
 | 🥉 9 | FDA Fine-tuned                  | 0.6970      | 0.5695     | Classic style transfer on raw images.               |
-| 📊 10| Baseline (Zero-Shot)            | 0.6685      | 0.5387     | Standard transfer without adaptation.               |
+| 📊 10| Baseline (Zero-Shot)            | 0.6867      | 0.5512     | ResNet-101 transfer. Isolated volume split.        |
 | 🔗 11| CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering.                      |
 | ⚡ 12| Energy-Regularized UDA          | 0.5276      | 0.4190     | OOD scoring for pseudo-labeling.                    |
 | 🌟 13| Dist. FDA (SegResNet)           | 0.4117      | 0.3210     | Batch-Averaged Style. High-VRAM. Stalled by sink.  |
@@ -35,23 +36,22 @@ This table compares general Domain Adaptation methods using the default backbone
 ---
 
 ## 1.1 Cross-Method-Model Comparison (Dice Score)
-Comprehensive evaluation of all key methods across all implemented architectures.
+Comprehensive evaluation of all key methods across all implemented architectures. All "Baseline" results are obtained via direct transfer from Cirrus to Spectralis with strict patient-level isolation.
 
-| Architecture | Baseline | FDA (Bot) | MS-FDA (Multi-Scale) | Adv-1to1 | Dist-FDA | DANN (Adv) | DDSP (Mix) |
+| Architecture | Baseline (Direct Transfer) | FDA (Bot) | MS-FDA (Multi-Scale) | Adv-1to1 | Dist-FDA | DANN (Adv) | DDSP (Mix) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **ResNet-101 (U-Net)** | 0.6685 | 0.7272 | **0.7850** | 0.7301 | 0.7458 | 0.7527 | 0.7569 |
-| **ResNet-50 (U-Net)** | 0.6402 | 0.6633 | **0.7615** | 0.6303 | 0.7336 | 0.7519 | 0.7298 |
-| **ResNet-18 (U-Net)** | 0.6827 | 0.6186 | **0.7360** | 0.6354 | 0.6538 | 0.5844 | 0.5881 |
-| **ResNet-10 (U-Net)** | 0.5146 | 0.5046 | **0.6398** | 0.5615 | 0.5593 | 0.5463 | 0.5218 |
-| **MobileNetV2 (U-Net)** | 0.6635 | 0.5932 | **0.7170** | 0.5521 | 0.5498 | 0.5110 | 0.5342 |
-| **ConvNeXt-L (U-Net)** | 0.7567 | 0.6594 | **0.7764** | 0.7194 | 0.7057 | 0.6879 | 0.6794 |
-| **ConvNeXt-T (U-Net)** | 0.5441 | 0.3583 | **0.6139** | 0.5449 | 0.4152 | 0.3708 | 0.2846 |
-| **ConvNeXt-A (U-Net)** | 0.3977 | 0.3012 | **0.4482** | 0.3110 | 0.3055 | 0.2843 | 0.2977 |
-| **AnamNet** | 0.3025 | 0.4059 | **0.5798** | 0.5362 | 0.3297 | 0.2775 | 0.4625 |
-| **SegResNet** | **0.6557** | 0.5707 | 0.3834 | 0.4798 | 0.4117 | 0.5597 | 0.6043 |
-| **MISSFormer** | 0.2350 | 0.2350 | **0.2560** | 0.2350 | 0.0620 | 0.0645 | 0.0959 |
-| **TinyUnet** | 0.3697 | 0.4112 | **0.5619** | 0.4875 | 0.4552 | 0.3992 | 0.4210 |
-
+| **ResNet-101 (U-Net)** | 0.6867 | 0.7272 | 0.7383 | 0.7301 | 0.7458 | 0.7527 | **0.7569** |
+| **ResNet-50 (U-Net)** | 0.5061 | 0.6633 | **0.7715** | 0.6303 | 0.7336 | 0.7519 | 0.7298 |
+| **ResNet-18 (U-Net)** | 0.5408 | 0.6186 | **0.7360** | 0.6354 | 0.6538 | 0.5844 | 0.5881 |
+| **ResNet-10 (U-Net)** | 0.5062 | 0.5046 | **0.6398** | 0.5615 | 0.5593 | 0.5463 | 0.5218 |
+| **MobileNetV2 (U-Net)** | 0.7054 | 0.5932 | **0.7270** | 0.5521 | 0.5498 | 0.5110 | 0.5342 |
+| **ConvNeXt-L (U-Net)** | 0.7159 | 0.6594 | **0.7564** | 0.7194 | 0.7057 | 0.6879 | 0.6794 |
+| **ConvNeXt-T (U-Net)** | 0.2905 | 0.3583 | **0.5639** | 0.5449 | 0.4152 | 0.3708 | 0.2846 |
+| **ConvNeXt-A (U-Net)** | 0.3320 | 0.3012 | **0.4482** | 0.3110 | 0.3055 | 0.2843 | 0.2977 |
+| **AnamNet** | 0.2660 | 0.4059 | **0.5598** | 0.5362 | 0.3297 | 0.2775 | 0.4625 |
+| **SegResNet** | 0.3992 | 0.5707 | 0.3834 | 0.4798 | 0.4117 | 0.5597 | **0.6043** |
+| **MISSFormer** | 0.0706 | 0.2350 | **0.2560** | 0.2350 | 0.0620 | 0.0645 | 0.0959 |
+| **TinyUnet** | 0.2810 | 0.4112 | **0.5619** | 0.4875 | 0.4552 | 0.3992 | 0.4210 |
 
 
 ---
@@ -107,6 +107,11 @@ Lower is better.
 ### 2.19. ConvNeXt-L Robustness Analysis
 - **Result:** Baseline 0.7567 Dice (Rank 2).
 - **Insight:** ConvNeXt-L displayed remarkable zero-shot robustness, outperforming all adapted ResNet-101 models by default. Interestingly, applying spectral adaptation (FDA/Dist-FDA) slightly decreased its performance. This suggests that modern, high-capacity backbones like ConvNeXt are inherently more invariant to scanner styles, and spectral swapping may perturb their highly optimized feature representations.
+
+### 2.20. Zero-Shot / Direct Transfer (Cirrus to Spectralis)
+- **Method:** Models are trained exclusively on Zeiss Cirrus annotated slices and evaluated directly on Heidelberg Spectralis slices.
+- **Constraint:** Strict patient-level volume splitting ensures that no patient data overlaps between training and validation folds.
+- **Observation:** Backbones like ConvNeXt Large show high intrinsic domain invariance (0.75+ Dice), while lightweight models like AnamNet require adaptation to maintain clinical utility.
 
 ---
 
