@@ -17,15 +17,15 @@ This table compares general Domain Adaptation methods using the default backbone
 | Rank | Method                          | Target Dice | Target IoU | Key Strength / Observation                          |
 | :--- | :------------------------------ | :---------: | :--------: | :-------------------------------------------------- |
 | 🏆 1 | **DDSP (Feature Disruption)** | **0.7569**  | 0.6435     | Current Champion. Best SRF (0.84) & PED (0.66).     |
-| 🦖 2 | **Baseline (ConvNeXt-L)**       | **0.7567**  | 0.6388     | Strongest Baseline. Zero-Shot Modern Backbone.      |
-| 🥈 3 | DANN (Domain Adversarial)       | 0.7527      | 0.6342     | Very strong feature-level alignment.                |
-| 🌟 4 | Dist. FDA (ResNet-101)          | 0.7458      | 0.6288     | New Spectral SOTA. Batch-Mean Stability.            |
-| 🚀 5 | Multi-Scale Feature FDA         | 0.7383      | 0.6212     | Top MS. Aligns multi-level textures.                |
-| 🚀 6 | Adv. Feature-Space FDA          | 0.7301      | 0.6128     | Physics-Informed. Robust & Disentangled.            |
-| 🚀 7 | Feature-Space FDA               | 0.7272      | 0.6092     | Standard bottleneck spectral swapping.              |
+| 🥈 2 | DANN (Domain Adversarial)       | 0.7527      | 0.6342     | Very strong feature-level alignment.                |
+| 🌟 3 | Dist. FDA (ResNet-101)          | 0.7458      | 0.6288     | New Spectral SOTA. Batch-Mean Stability.            |
+| 🚀 4 | Multi-Scale Feature FDA         | 0.7383      | 0.6212     | Top MS. Aligns multi-level textures.                |
+| 🚀 5 | Adv. Feature-Space FDA          | 0.7301      | 0.6128     | Physics-Informed. Robust & Disentangled.            |
+| 🚀 6 | Feature-Space FDA               | 0.7272      | 0.6092     | Standard bottleneck spectral swapping.              |
+| 🦖 7 | **Baseline (ConvNeXt-L)**       | **0.7159**  | 0.6105     | Strong Zero-Shot. Strictly isolated split.         |
 | 🦖 8 | Dist. FDA (ConvNeXt-L)          | 0.7057      | 0.5891     | Modern Backbone. Stalled at 320x320.                |
 | 🥉 9 | FDA Fine-tuned                  | 0.6970      | 0.5695     | Classic style transfer on raw images.               |
-| 📊 10| Baseline (Zero-Shot)            | 0.6685      | 0.5387     | Standard transfer without adaptation.               |
+| 📊 10| Baseline (Zero-Shot)            | 0.6867      | 0.5512     | ResNet-101 transfer. Isolated volume split.        |
 | 🔗 11| CLUDA (Contrastive Alignment)   | 0.5306      | 0.4249     | Class-wise feature clustering.                      |
 | ⚡ 12| Energy-Regularized UDA          | 0.5276      | 0.4190     | OOD scoring for pseudo-labeling.                    |
 | 🌟 13| Dist. FDA (SegResNet)           | 0.4117      | 0.3210     | Batch-Averaged Style. High-VRAM. Stalled by sink.  |
@@ -42,16 +42,17 @@ Comprehensive evaluation of all key methods across all implemented architectures
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **ResNet-101 (U-Net)** | 0.6867 | 0.7272 | 0.7383 | 0.7301 | **0.7458** | 0.7527 | **0.7569** |
 | **ResNet-50 (U-Net)** | 0.5061 | 0.6633 | 0.7115 | 0.6303 | 0.7336 | **0.7519** | 0.7298 |
-| **ResNet-18 (U-Net)** | 0.5408 | 0.6186 | 0.6360 | 0.6354 | 0.6538 | 0.5844 | 0.5881 |
+| **ResNet-18 (U-Net)** | **0.5408** | 0.6186 | 0.6360 | 0.6354 | 0.6538 | 0.5844 | 0.5881 |
 | **ResNet-10 (U-Net)** | 0.5062 | 0.5046 | **0.6398** | 0.5615 | 0.5593 | 0.5463 | 0.5218 |
-| **MobileNetV2 (U-Net)** | **0.6635** | 0.5932 | 0.6170 | 0.5521 | 0.5498 | 0.5110 | 0.5342 |
-| **ConvNeXt-L (U-Net)** | **0.7567** | 0.6594 | 0.6764 | 0.7194 | 0.7057 | 0.6879 | 0.6794 |
-| **ConvNeXt-T (U-Net)** | 0.5441 | 0.3583 | 0.4139 | **0.5449** | 0.4152 | 0.3708 | 0.2846 |
-| **ConvNeXt-A (U-Net)** | **0.3977** | 0.3012 | 0.3482 | 0.3110 | 0.3055 | 0.2843 | 0.2977 |
-| **AnamNet** | 0.3025 | 0.4059 | 0.5198 | **0.5362** | 0.3297 | 0.2775 | 0.4625 |
-| **SegResNet** | **0.6557** | 0.5707 | 0.3834 | 0.4798 | 0.4117 | 0.5597 | 0.6043 |
-| **MISSFormer** | 0.2350 | 0.2350 | **0.2560** | 0.2350 | 0.0620 | 0.0645 | 0.0959 |
-| **TinyUnet** | 0.3697 | 0.4112 | **0.5619** | 0.4875 | 0.4552 | 0.3992 | 0.4210 |
+| **MobileNetV2 (U-Net)** | **0.7054** | 0.5932 | 0.6170 | 0.5521 | 0.5498 | 0.5110 | 0.5342 |
+| **ConvNeXt-L (U-Net)** | **0.7159** | 0.6594 | 0.6764 | 0.7194 | 0.7057 | 0.6879 | 0.6794 |
+| **ConvNeXt-T (U-Net)** | 0.2905 | 0.3583 | 0.4139 | **0.5449** | 0.4152 | 0.3708 | 0.2846 |
+| **ConvNeXt-A (U-Net)** | 0.3320 | 0.3012 | **0.3482** | 0.3110 | 0.3055 | 0.2843 | 0.2977 |
+| **AnamNet** | 0.2660 | 0.4059 | 0.5198 | **0.5362** | 0.3297 | 0.2775 | 0.4625 |
+| **SegResNet** | 0.3992 | 0.5707 | 0.3834 | 0.4798 | 0.4117 | 0.5597 | **0.6043** |
+| **MISSFormer** | 0.0706 | 0.2350 | **0.2560** | 0.2350 | 0.0620 | 0.0645 | 0.0959 |
+| **TinyUnet** | 0.2810 | 0.4112 | **0.5619** | 0.4875 | 0.4552 | 0.3992 | 0.4210 |
+
 
 ---
 
