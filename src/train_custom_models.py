@@ -120,6 +120,13 @@ class CustomFlexibleUDAModel(nn.Module):
                     preds = self.base_model.segmentation_head(self.base_model.decoder(feats_src))
                 
                 return preds, src_domain_preds, trg_domain_preds
+
+            elif self.mode == 'tent':
+                if hasattr(self.base_model, 'forward_from_features'):
+                    preds = self.base_model.forward_from_features(feats_src)
+                else:
+                    preds = self.base_model.segmentation_head(self.base_model.decoder(feats_src))
+                return preds
             
         if hasattr(self.base_model, 'forward_from_features'):
             preds = self.base_model.forward_from_features(feats_src)
@@ -259,6 +266,15 @@ def main(args):
                 loss.backward()
                 optimizer.step()
                 if discr_optimizer: discr_optimizer.step()
+
+            elif args.mode == 'tent':
+                # TENT: Test-time adaptation via entropy minimization on target images
+                # Only BN parameters should be updated
+                outputs = model(trg_imgs)
+                probs = torch.softmax(outputs, dim=1)
+                loss = -(probs * torch.log(probs + 1e-6)).sum(dim=1).mean()
+                loss.backward()
+                optimizer.step()
             
             else:
                 outputs = model(src_imgs, trg_imgs)
@@ -289,7 +305,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_name", type=str, required=True, choices=["anamnet", "segresnet", "missformer", "resnet101", "resnet50", "resnet18", "resnet10", "mobilenet_v2", "convnext_large", "convnext_tiny", "convnext_atto", "tiny_unet"])
-    parser.add_argument("--mode", type=str, default="baseline", choices=["baseline", "fda", "ms-fda", "adv-fda", "adv-1to1", "ddsp", "dann"])
+    parser.add_argument("--mode", type=str, default="baseline", choices=["baseline", "fda", "ms-fda", "adv-fda", "adv-1to1", "ddsp", "dann", "tent"])
     parser.add_argument("--data_root", type=str, default="data")
     parser.add_argument("--batch_size", type=int, default=4)
     parser.add_argument("--epochs", type=int, default=15)
